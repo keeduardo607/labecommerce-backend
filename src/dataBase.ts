@@ -14,6 +14,13 @@ export const users: Tusers[] = [
       email: "beltrana@email.com",
       password: "beltrana00",
       createdAt: new Date().toISOString()
+    },
+    {
+      id: "u003",
+      name: "Kevin",
+      email: "kevin@email.com",
+      password: "kevin00",
+      createdAt: new Date().toISOString()
     }
 ]
 
@@ -31,5 +38,12 @@ export const products: Tproducts[] = [
       price: 900,
       description: "Monitor LED Full HD 24 polegadas",
       imageUrl: "https://picsum.photos/seed/Monitor/400"
+    },
+    {
+      id: "prod003",
+      name: "Teclado",
+      price: 695,
+      description: "Teclado Mêcanico RGB",
+      imageUrl: "https://picsum.photos/seed/Teclado/400"
     }
 ]
