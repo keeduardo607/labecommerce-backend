@@ -74,7 +74,7 @@ SET
     price = 899,
     description = 'Processador Intel Ultima Geração',
     image_url = 'https://picsum.photos/seed/Processador%20Intel/400'
-WHERE id = 'prod001'  ;  
+WHERE id = 'prod001';  
   
 
 
