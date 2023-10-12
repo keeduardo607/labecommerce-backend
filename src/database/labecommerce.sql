@@ -1,9 +1,5 @@
-<<<<<<< HEAD
+-- Active: 1696529169201@@127.0.0.1@3306
 -- TABELA DE USUARIOS
-=======
--- Active: 1695755152191@@127.0.0.1@3306
-
->>>>>>> ca8baca046da901f48467d26a3825fe049a9ec2e
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     name TEXT NOT NULL,
@@ -12,10 +8,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL
 );
 
-<<<<<<< HEAD
 -- TABELA DE PRODUTOS
-=======
->>>>>>> ca8baca046da901f48467d26a3825fe049a9ec2e
 CREATE TABLE products (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     name TEXT NOT NULL,
@@ -24,7 +17,6 @@ CREATE TABLE products (
     image_url TEXT NOT NULL
 );
 
-<<<<<<< HEAD
 -- TABELA DE PEDIDOS
 CREATE TABLE purchases (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
@@ -32,6 +24,8 @@ CREATE TABLE purchases (
     total_price REAL NOT NULL,
     create_at TIMESTAMP NOT NULL,
     Foreign Key (buyer) REFERENCES users(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 -- RETORNA TODOS OS USUARIOS CADASTRADOS
@@ -47,6 +41,7 @@ SELECT * FROM purchases;
 DROP TABLE users;
 DROP TABLE products;
 DROP TABLE purchases;
+DROP TABLE purchases_products;
 
 -- INSERÇÃO DE USUARIOS
 INSERT INTO users VALUES 
@@ -87,9 +82,10 @@ WHERE id = 'prod001';
 -- INSERÇÃO DE PEDIDOS
 INSERT INTO purchases VALUES
 ('p001', 'u001', 426, DATETIME('now')),
-('p002', 'u002', 389, DATETIME('now'));
+('p002', 'u002', 389, DATETIME('now')),
+('p003', 'u003', 129, DATETIME('now'));
 
-SELECT purchases.id, purchases.buyer, users.name, users.email, purchases.total_price, purchases.create_at
+SELECT *
 FROM users INNER JOIN purchases ON purchases.buyer = users.id;
 
 -- EDITA O VALOR DO PEDIDO
@@ -97,48 +93,40 @@ UPDATE purchases
   SET
     total_price = 100
 WHERE id = 'p001';
-=======
--- VISUALIZAR TABELA
-SELECT * FROM users;
-SELECT * FROM products;
 
--- DELETAR TABELA
-DROP TABLE users;
-DROP TABLE products;
+-- TABELA DE RELAÇÕES
+CREATE TABLE purchases_products (
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT (0),
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
 
--- INSERÇÃO DE USUARIOS
-INSERT INTO users 
-VALUES ('u001', 'Kevin Eduardo da Silva', 'kevin@email.com', 'Kevin@123', DATETIME('now'));
+-- 
+INSERT INTO purchases_products VALUES
+('p001', 'prod001', 3),
+('p002', 'prod003', 1),
+('p002', 'prod005', 7);
 
-INSERT INTO users
-VALUES ('U002', 'Natalia Moya Ferreira', 'natalia@email.com', 'Natalia1210', DATETIME('now'));
-
-INSERT INTO users
-VALUES ('U003', 'Daniela Aparecida Silva', 'daniela@email.com', 'Daniela@*6985', DATETIME('now'))
-
--- INSERÇÃO DE PRODUTOS
-INSERT INTO products
-VALUES ('prod001', 'Mouse Gamer', 250, 'Melhor mouse do mercado!', 'https://picsum.photos/seed/Mouse%20gamer/400');
-
-INSERT INTO products
-VALUES ('prod002', 'Monitor Gamer', 990.90, 'Monitor LED Full HD 24 polegadas', 'https://picsum.photos/seed/Monitor/400');
-
-INSERT INTO products
-VALUES ('prod003', 'Teclado Gamer', 189.90, 'Teclado Gamer Mecânico com LED RGB', 'https://picsum.photos/seed/Teclado/400');
-
-INSERT INTO products
-VALUES ('prod004', 'Abajur LED BLUETOOTH', 89, 'Abajur LED + Caixa de som BLUETOOTH', 'https://picsum.photos/seed/Abajur/400');
-
-INSERT INTO products
-VALUES ('prod005', 'Head Phone Gamer', 129.90, 'Head Phone Gamer', 'https://picsum.photos/seed/Head%phone/400');
+SELECT 
+  purchases.id AS 'ID do Pedido',
+  users.name AS 'Nome do Usuario',
+  users.email AS 'Email do Usuario',
+  products.id AS 'ID do Produto',
+  products.name AS 'Nome do Produto',
+  products.price AS 'Valor do Produto',
+  purchases_products.quantity AS 'Quantidade',
+  purchases.total_price AS 'Valor Total'
+FROM purchases_products
+INNER JOIN purchases ON purchases_products.purchase_id = purchases.id
+INNER JOIN users ON purchases.buyer = users.id
+INNER JOIN products ON purchases_products.product_id = products.id;
 
 
 
 
 
 
-
-
-
-
->>>>>>> ca8baca046da901f48467d26a3825fe049a9ec2e
