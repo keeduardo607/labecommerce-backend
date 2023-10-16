@@ -31,5 +31,12 @@ export const products: Tproducts[] = [
       price: 900,
       description: "Monitor LED Full HD 24 polegadas",
       imageUrl: "https://picsum.photos/seed/Monitor/400"
+    },
+    {
+      id: "prod003",
+      name: "Teclado gamer",
+      price: 200,
+      description: "Teclado mecânico com numpad",
+      imageUrl: "https://picsum.photos/seed/Teclado%20gamer/400"
     }
 ]
