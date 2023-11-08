@@ -1,189 +1,110 @@
-import express, { Request, Response} from 'express'
-import cors from 'cors'
-import { products, users } from './dataBase';
-import { Tproducts, Tusers } from './types';
-import { db } from './database/knex';
+-- Active: 1699482333301@@127.0.0.1@3306
 
-const app = express();
+CREATE TABLE
+    users (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        createad_at DEFAULT (DATE ('now', 'localtime'))
+    );
 
-app.use(express.json());
-app.use(cors());
+INSERT INTO
+    users (id, name, email, password)
+VALUES (
+        'u001',
+        'Kevin Eduardo da Silva',
+        'kevineduardo@email.com',
+        'Keedu@2365'
+    ), (
+        'u002',
+        'Ericles Eduardo da Silva',
+        'ericles.eduardo12@email.com',
+        'Ec25963_12'
+    ), (
+        'u003',
+        'Anne Beatriz da Silva',
+        'anne.beatriz@email.com',
+        'anninha111@@'
+    );
 
-app.listen(3003, () => {
-  console.log("Servidor rodando na porta 3003");
-});
+CREATE TABLE
+    products (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        description TEXT NOT NULL,
+        image_url TEXT
+    );
 
-app.get("/ping", async (req: Request, res: Response) => {
-   try {
-      res.status(200).send({message: "Pong!"})
-   } catch (error) {
-      console.log(error)
+INSERT INTO
+    products (
+        id,
+        name,
+        price,
+        description,
+        image_url
+    )
+VALUES (
+        'prod001',
+        'Mouse Gamer',
+        250,
+        'Melhor mouse do mercado!',
+        'https://picsum.photos/seed/Mouse%20gamer/400'
+    ), (
+        'prod002',
+        'Monitor Gamer',
+        990.90,
+        'Monitor LED Full HD 24 polegadas',
+        'https://picsum.photos/seed/Monitor/400'
+    ), (
+        'prod003',
+        'Teclado Gamer',
+        189.90,
+        'Teclado Gamer Mecânico com LED RGB',
+        'https://picsum.photos/seed/Teclado/400'
+    ), (
+        'prod004',
+        'Abajur LED BLUETOOTH',
+        89,
+        'Abajur LED + Caixa de som BLUETOOTH',
+        'https://picsum.photos/seed/Abajur/400'
+    ), (
+        'prod005',
+        'Head Phone Gamer',
+        129.90,
+        'Head Phone Gamer',
+        'https://picsum.photos/seed/Head%phone/400'
+    );
 
-      if (req.statusCode === 200) {
-         res.status(500)
-      }
+CREATE TABLE
+    purchases (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        buyer TEXT NOT NULL,
+        total_price REAL NOT NULL,
+        created_at TEXT DEFAULT (
+            strftime(
+                '%Y-%m-%d %H:%M:%S',
+                'now',
+                'localtime'
+            )
+        ),
+        paid INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (buyer) REFERENCES users (id)
+    );
 
-      if (error instanceof Error) {
-         res.send(error.message)
-      } else {
-         res.send("Erro Inesperado")
-      }
-      
-   }
-})
+INSERT INTO
+    purchases (id, buyer, total_price, paid)
+VALUES ('p001', 'u001', 426, 0), ('p002', 'u002', 389, 0), ('p003', 'u003', 129, 0);
 
-// Endpoint: Get All Users
-app.get("/users", async (req: Request, res: Response) => {
-  try {
-    const users = await db.select().from('users');
-    res.status(200).send(users);
-  } catch (error: any) {
-    res.status(500).send("Ocorreu um erro ao buscar os usuários.");
-  }
-});
+CREATE TABLE
+    purchases_products (
+        purchase_id TEXT NOT NULL,
+        product_id TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        FOREIGN KEY (purchase_id) REFERENCES purchases (id),
+        FOREIGN KEY (product_id) REFERENCES products (id)
+    );
 
-// Endpoint: Get All Products
-app.get("/products", async (req: Request, res: Response) => {
-  try {
-    const products = await db.select().from('products');
-    res.status(200).send(products);
-  } catch (error: any) {
-    res.status(500).send("Ocorreu um erro ao buscar os produtos.");
-  }
-});
-
-// Endpoint: Refatorar o GET /products
-app.get("/products/search", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const query = req.query.name as string;
-
-    if (query.length <= 1) {
-      throw new Error("Ocorreu um erro ao processar a solicitação.");
-    }
-
-    const products = await db.select().from('products');
-
-    if (query) {
-      const result: Tproducts[] = products.filter((product) => product.name.toLowerCase() === query.toLowerCase());
-      res.status(200).send(result);
-    } else {
-      res.status(200).send(products);
-    }
-  } catch (error: any) {
-    if (error instanceof Error) {
-      res.status(404).send(error.message);
-    }
-  }
-});
-
-// Endpoint: Create User
-app.post('/users', async (req: Request, res: Response) => {
-  try {
-    const { id, name, email, password }: Tusers = req.body;
-    const checkExistingUserId = req.body.id;
-    const checkExistUserEmail = req.body.email;
-
-    if (
-      typeof id !== "string" ||
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      typeof password !== "string"
-    ) {
-      res.status(404).send("Os dados devem ser do formato 'string'!");
-    } else {
-      await db('users').insert({ id, name, email, password });
-      res.status(201).send('Cadastro realizado com sucesso');
-    }
-  } catch (error: any) {
-    if (error instanceof Error) {
-      res.status(500).send(error.message);
-    }
-  }
-});
-
-// Endpoint: Create products
-app.post('/products', async (req: Request, res: Response) => {
-  try {
-    const { id, name, price, description, imageUrl }: Tproducts = req.body;
-    const checkExistingProductId = req.body.id;
-
-    if (
-      typeof id !== "string" ||
-      typeof name !== "string" ||
-      typeof description !== "string" ||
-      typeof imageUrl !== "string" ||
-      typeof price !== "number"
-    ) {
-      res.status(404).send("Os dados devem ser do formato correto.");
-    } else {
-      await db('products').insert({ id, name, price, description, imageUrl });
-      res.status(201).send('Cadastro realizado com sucesso');
-    }
-  } catch (error: any) {
-    if (error instanceof Error) {
-      res.status(500).send(error.message);
-    } else {
-      res.status(500).send("Ocorreu um erro interno.");
-    }
-  }
-});
-
-// Endpoint: Delete User by id
-app.delete("/users/:id", async (req: Request, res: Response) => {
-  try {
-    const idToDelete = req.params.id;
-    const result = await db('users').where({ id: idToDelete }).del();
-
-    if (result === 0) {
-      res.status(404).send("Usuário não existe, portanto, não é possível deletá-lo.");
-    } else {
-      res.status(200).send("Usuário apagado com sucesso!");
-    }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Endpoint: Delete Product by id
-app.delete("/products/:id", async (req: Request, res: Response) => {
-  try {
-    const idToDelete = req.params.id;
-    const result = await db('products').where({ id: idToDelete }).del();
-
-    if (result === 0) {
-      res.status(404).send("Produto não existe, portanto, não é possível deletá-lo.");
-    } else {
-      res.status(200).send("Produto apagado com sucesso!");
-    }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Endpoint: Edit Product by id
-app.put("/products/:id", async (req: Request, res: Response) => {
-  try {
-    const idByProducts = req.params.id;
-    const { id, name, price, description, imageUrl }: Tproducts = req.body;
-
-    if (
-      typeof id !== "string" ||
-      typeof name !== "string" ||
-      typeof description !== "string" ||
-      typeof imageUrl !== "string" ||
-      typeof price !== "number"
-    ) {
-      res.status(404).send("Os dados devem ser do formato correto.");
-    } else {
-      const result = await db('products').where({ id: idByProducts }).update({ id, name, price, description, imageUrl });
-
-      if (result === 0) {
-        res.status(404).send("Produto não existe, portanto, não é possível atualizá-lo.");
-      } else {
-        res.status(200).send("Produto atualizado com sucesso!");
-      }
-    }
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-});
+INSERT INTO purchases_products
+VALUES ('p001', 'prod001', 3), ('p002', 'prod003', 1), ('p002', 'prod005', 7);

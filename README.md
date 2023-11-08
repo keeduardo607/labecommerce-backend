@@ -75,4 +75,5 @@ Nós já implementamos os seguintes endpoints na nossa API:
 - **Delete purchase by id:** ![Imagem7](link-da-imagem-7)
 - **Get purchase by id:** ![Imagem8](link-da-imagem-8)
 
-Sinta-se à vontade para atualizar os links das imagens e personalizar o README conforme necessário. Este é um guia interativo para o seu projeto Back-End, tornando-o mais amigável para colaboradores e usuários. 🚀
+📜 Documentação da API
+https://documenter.getpostman.com/view/28314885/2s9YXiYLxf

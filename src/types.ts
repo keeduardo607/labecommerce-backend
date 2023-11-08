@@ -13,3 +13,11 @@ export type Tusers = {
      description: string
      imageUrl: string
  }
+
+ export type Tpurchase = {
+    id: string;
+    buyer: string;
+    totalPrice: number;
+    productId: string;
+    quantity: number;
+};
